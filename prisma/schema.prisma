@@ -11,6 +11,71 @@ datasource db {
   relationMode = "prisma"
 }
 
-model User {
-  id    String @id @default(uuid())
+// Enum for user type
+enum UserType {
+  USER
+  STREAMER
 }
+
+// Enum for session status
+enum SessionStatus {
+  PENDING
+  APPROVED
+  COMPLETED
+}
+
+// User model
+model User {
+  id           Int        @id @default(autoincrement())
+  email        String     @unique
+  password     String     // Store hashed password
+  name         String
+  type         UserType   // User type: either USER or STREAMER
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  sessions     Session[]  // Relation with sessions
+  streamerInfo Streamer?  // Relation with Streamer (1-to-1 relation if the user is a streamer)
+}
+
+// Streamer model
+model Streamer {
+  id        Int      @id @default(autoincrement())
+  bio       String?  // A short bio or description about the streamer
+  location  String   // Location of the streamer, e.g., "Mumbai, India"
+  userId    Int      // Foreign key to User
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions  Session[] // Relation with sessions
+
+  @@unique([userId])
+}
+
+// Session model
+model Session {
+  id            Int           @id @default(autoincrement())
+  requestedDate DateTime
+  status        SessionStatus @default(PENDING)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int           // Foreign key to User
+  streamer      Streamer      @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+  streamerId    Int           // Foreign key to Streamer
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@unique([userId])
+  @@unique([streamerId])
+}
+
+// // Optionally, if you plan to add a feedback/rating system later:
+// model Feedback {
+//   id        Int      @id @default(autoincrement())
+//   rating    Int      // On a scale of 1 to 5, for instance
+//   comment   String?
+//   userId    Int      // Foreign key to User
+//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   streamer  Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+//   streamerId Int
+//   createdAt DateTime @default(now())
+
+//   @@unique([userId])
+//   @@unique([streamerId])
+// }
