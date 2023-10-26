@@ -3,6 +3,9 @@
 import { useStreamerSignUpModal, useUserSignUpModal} from "@/hooks/use-signup-modal";
 import Modal from "@/components/ui/modal";
 import { UserSignUpForm } from "./modals/user-signup-form";
+import { Button } from "./ui/button";
+import { AiFillGithub } from "react-icons/ai";
+import { signIn } from "next-auth/react";
 
 const UserSignUpModal = () => {
   const signUpModal = useUserSignUpModal();
@@ -22,7 +25,9 @@ const UserSignUpModal = () => {
       </div>
       <hr />
       <div className="w-full mt-7">
-        <UserSignUpForm type="USER" />
+        <div className='flex flex-col gap-4 items-center'>
+          <UserSignUpForm />
+        </div>
       </div>
     </Modal>
   );
@@ -47,7 +52,9 @@ const StreamerSignUpModal = () => {
       </div>
       <hr />
       <div className="w-full mt-7">
-        <UserSignUpForm type="STREAMER"/>
+        <div className='flex flex-col gap-4 items-center'>
+          <UserSignUpForm />
+        </div>
       </div>
     </Modal>
   );

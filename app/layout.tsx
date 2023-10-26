@@ -4,8 +4,8 @@ import './globals.css'
 import Navbar from '@/components/navbar'
 import ModalProvider from '@/providers/modal-provider'
 import { Toaster } from '@/components/ui/toaster'
-import getCurrentUser from '@/actions/get-current-user'
-import Image from 'next/image'
+import LayoutClient from '@/components/layout-client'
+import { ThemeProvider } from '@/components/theme-provide'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,27 +19,25 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const user = await getCurrentUser();
-  console.log("Current User: ", user)
 
   return (
     <html lang="en">
-      <body className={`${inter.className}`}>
-        <Navbar user={user} />
-        <div className=''>
-          {children}
-          {/* <video className='absolute -z-10 top-0 h-screen object-cover blur-sm' autoPlay loop muted>
-            <source src={'/map.mp4'} type='video/mp4' />
-          </video> */}
-          <Image
-            src={'/map-dots.png'}
-            alt=''
-            fill
-            className='absolute -z-10 top-0 h-screen object-cover'
-          />
-        </div>
-        <ModalProvider />
-        <Toaster />
+      <body className={`${inter.className} bg-black`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <LayoutClient>
+            <Navbar />
+            <div className=''>
+              {children}  
+            </div>
+            <ModalProvider />
+            <Toaster />
+          </LayoutClient>
+        </ThemeProvider>
       </body>
     </html>
   )

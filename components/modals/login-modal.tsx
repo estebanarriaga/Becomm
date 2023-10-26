@@ -16,9 +16,15 @@ const LoginModal = () => {
       open={loginModal.isOpen} 
       onClose={loginModal.onClose}
     >
-			<div className='flex flex-col gap-4 items-center'>
-				<Button onClick={() => signIn('github')} className='flex flex-row gap-3'>
-					<AiFillGithub /> continue with Github
+			<div className='flex flex-col gap-4'>
+				<div className="mb-4">
+					<h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+						Log In with Github
+					</h3>
+				</div>
+				<hr />
+				<Button onClick={() => signIn('github')} className='flex flex-row gap-3 w-full'>
+					<AiFillGithub /> Github Log In
 				</Button>
 			</div>
     </Modal>

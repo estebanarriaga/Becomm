@@ -1,20 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Input } from "./ui/input";
+import { useState } from "react";
 import { User } from "@prisma/client";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { signIn } from "next-auth/react";
-import { AiFillGithub }from "react-icons/ai"
+import { BsGithub }from "react-icons/bs"
+import { useRouter } from "next/navigation";
+import useLoginModal from "@/hooks/use-login-modal";
+import Image from "next/image";
+import { useConnectors, useNetwork, useAccount } from "@starknet-react/core";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { toast } from "./ui/use-toast";
+import { finished } from "stream";
+import Link from "next/link";
 
-const Navbar = ({ user }: { user?: User | null}) => {
+
+const Navbar = () => {
+	const { connect, connectors, disconnect } = useConnectors();
+	const { address, isConnected, isReconnecting, account } = useAccount();
+
 	const [searchFilter, setSearchFilter] = useState("");
+	const logInModal = useLoginModal();
+	const router = useRouter();
+
+	const onConnect = (connector: any) => {
+		try {
+			connect(connector)
+			toast({
+				title: "Account connected"
+			})
+		} catch (error) {
+			console.log(error)
+		} finally {
+			
+		}
+	}
 
 	return (
-		<div className="fixed w-full flex justify-center py-3 border-b border-slate-800 mb-14">
-			<div className="absolute left-10 scroll-m-20 text-slate-300 text-2xl font-extrabold tracking-tight lg:text-3xl">
-				BECOMME
+		<div className="fixed w-full flex justify-center py-3 border-b border-slate-800 mb-14 bg-black">
+			<div className="hidden md:block absolute left-10 scroll-m-20 text-slate-300 text-2xl font-extrabold tracking-tight lg:text-3xl">
+				<Link href={'/'}>
+					BECOMME
+				</Link>
 			</div>
 			<div className="flex flex-row items-center justify-center gap-3">
 				<input
@@ -23,18 +54,46 @@ const Navbar = ({ user }: { user?: User | null}) => {
 					onChange={(e) => setSearchFilter(e.target.value)}
 					placeholder='Search Streamers'
 				/>
-				<Button variant={"secondary"}>Search</Button>
+				<Button variant={"secondary"} onClick={() => router.push(`/search/${searchFilter}`)}>Search</Button>
 			</div>
-			<div className="absolute right-10">
-				{!user ? (
-					<Button onClick={() => signIn('github')} className="flex flex-row gap-5">
-						<AiFillGithub /> Log In
-					</Button>
+			<div className="hidden md:block absolute right-10">
+				{!isConnected ? (
+					<div className="flex flex-row items-center justify-center gap-4">
+						{connectors.map((connector) => (
+							<Button
+								key={connector.id}
+								onClick={() => onConnect(connector)}
+								disabled={!connector.available()}
+								variant={"secondary"}
+							>
+								<Image
+									src={'/argent-x-logo.svg'}
+									alt="Argent X logo"
+									width={25}
+									height={25}
+									className="object-contain"
+								/>
+							</Button>
+						))}
+						{/* <Button variant={"secondary"} onClick={() => logInModal.onOpen()} className="flex flex-row gap-5">
+							<BsGithub /> Log In
+						</Button> */}
+					</div>
 				) : (
-					<Avatar>
-						<AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-						<AvatarFallback>CN</AvatarFallback>
-					</Avatar>
+					<Popover>
+						<PopoverTrigger asChild className="cursor-pointer">
+							<Avatar>
+								<AvatarImage src="" alt="@shadcn" />
+								<AvatarFallback>CN</AvatarFallback>
+							</Avatar>
+						</PopoverTrigger>
+						<PopoverContent className="w-80">
+							<Button variant={"outline"} onClick={disconnect} className="w-full">
+								Disconnect
+							</Button>
+							{account?.address}
+						</PopoverContent>
+					</Popover>
 				)}
 			</div>
 		</div>

@@ -33,9 +33,9 @@ export function UserSignUpForm ({
 	type = "USER",
 }) {
 	let signUpModal: any;
-  if (type === "USER") {
-    signUpModal = useUserSignUpModal();
-  } else signUpModal = useStreamerSignUpModal()
+  // if (type === "USER") {
+  //   signUpModal = useUserSignUpModal();
+  // } else signUpModal = useStreamerSignUpModal()
   const router = useRouter();
 
   const form = useForm<z.infer<typeof FormSchema>>({
