@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import SignUpModal from "@/components/signup-modal";
+import { StreamerSignUpModal, UserSignUpModal} from "@/components/signup-modal";
+import LoginModal from "@/components/modals/login-modal";
 
 const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -17,7 +18,9 @@ const ModalProvider = () => {
 
   return ( 
     <>
-      <SignUpModal />
+      <StreamerSignUpModal />
+      <UserSignUpModal />
+      <LoginModal />
     </>
    );
 }

@@ -24,58 +24,50 @@ enum SessionStatus {
   COMPLETED
 }
 
-// User model
-model User {
-  id           Int        @id @default(autoincrement())
-  email        String     @unique
-  password     String     // Store hashed password
-  name         String
-  type         UserType   // User type: either USER or STREAMER
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  sessions     Session[]  // Relation with sessions
-  streamerInfo Streamer?  // Relation with Streamer (1-to-1 relation if the user is a streamer)
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
-// Streamer model
-model Streamer {
-  id        Int      @id @default(autoincrement())
-  bio       String?  // A short bio or description about the streamer
-  location  String   // Location of the streamer, e.g., "Mumbai, India"
-  userId    Int      // Foreign key to User
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sessions  Session[] // Relation with sessions
-
-  @@unique([userId])
-}
-
-// Session model
 model Session {
-  id            Int           @id @default(autoincrement())
-  requestedDate DateTime
-  status        SessionStatus @default(PENDING)
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        Int           // Foreign key to User
-  streamer      Streamer      @relation(fields: [streamerId], references: [id], onDelete: Cascade)
-  streamerId    Int           // Foreign key to Streamer
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-
-  @@unique([userId])
-  @@unique([streamerId])
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
 }
 
-// // Optionally, if you plan to add a feedback/rating system later:
-// model Feedback {
-//   id        Int      @id @default(autoincrement())
-//   rating    Int      // On a scale of 1 to 5, for instance
-//   comment   String?
-//   userId    Int      // Foreign key to User
-//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-//   streamer  Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
-//   streamerId Int
-//   createdAt DateTime @default(now())
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+}
 
-//   @@unique([userId])
-//   @@unique([streamerId])
-// }
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
